@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    long long key;      // number value
+    int index;          // index of the number
+    struct Node* next;
+} Node;
+
+unsigned int hash(long long key, int size) {
+    if (key < 0) key = -key;
+    return key % size;
+}
+
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    int hashSize = numsSize * 2;
+    Node** table = (Node**)calloc(hashSize, sizeof(Node*));
+
+    int* result = (int*)malloc(2 * sizeof(int));
+    *returnSize = 2;
+
+    for (int i = 0; i < numsSize; i++) {
+        long long complement = (long long)target - nums[i];
+
+        unsigned int h = hash(complement, hashSize);
+        Node* current = table[h];
+
+        // Search for complement in hash table
+        while (current != NULL) {
+            if (current->key == complement) {
+                result[0] = current->index;
+                result[1] = i;
+
+                // Free hash table memory
+                for (int j = 0; j < hashSize; j++) {
+                    Node* temp = table[j];
+                    while (temp != NULL) {
+                        Node* next = temp->next;
+                        free(temp);
+                        temp = next;
+                    }
+                }
+                free(table);
+
+                return result;
+            }
+            current = current->next;
+        }
+
+        // Insert current number into hash table
+        h = hash(nums[i], hashSize);
+        Node* newNode = (Node*)malloc(sizeof(Node));
+        newNode->key = nums[i];
+        newNode->index = i;
+        newNode->next = table[h];
+        table[h] = newNode;
+    }
+
+    *returnSize = 0;
+    free(result);
+    free(table);
+    return NULL;
+}
