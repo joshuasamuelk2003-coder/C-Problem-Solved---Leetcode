@@ -1,0 +1,19 @@
+struct ListNode* swapPairs(struct ListNode* head) {
+    // Base case: if list is empty or has only one node
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+
+    // Nodes to be swapped
+    struct ListNode* first = head;
+    struct ListNode* second = head->next;
+
+    // Call recursively for the rest of the list
+    first->next = swapPairs(second->next);
+    
+    // Swap the current pair
+    second->next = first;
+
+    // New head of the swapped pair
+    return second;
+}
