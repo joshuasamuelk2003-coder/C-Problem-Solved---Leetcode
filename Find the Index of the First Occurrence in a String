@@ -1,0 +1,28 @@
+#include <string.h>
+
+int strStr(char* haystack, char* needle) {
+    int h_len = strlen(haystack);
+    int n_len = strlen(needle);
+
+    // If needle is longer than haystack, it can't be a substring
+    if (n_len > h_len) {
+        return -1;
+    }
+
+    // Loop through haystack up to the point where needle can still fit
+    for (int i = 0; i <= h_len - n_len; i++) {
+        int j;
+        // Check if needle matches starting at haystack index i
+        for (j = 0; j < n_len; j++) {
+            if (haystack[i + j] != needle[j]) {
+                break; // Mismatch found, stop checking this position
+            }
+        }
+        // If we matched the entire needle length, return the starting index
+        if (j == n_len) {
+            return i;
+        }
+    }
+
+    return -1; // Needle not found
+}
