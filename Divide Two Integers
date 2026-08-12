@@ -1,0 +1,46 @@
+#include <limits.h>
+#include <stdbool.h>
+
+int divide(int dividend, int divisor) {
+    // Handle the 32-bit signed integer overflow edge case
+    if (dividend == INT_MIN && divisor == -1) {
+        return INT_MAX;
+    }
+
+    // Determine the sign of the result
+    bool is_negative = (dividend < 0) ^ (divisor < 0);
+
+    // Convert both numbers to negative to prevent overflow issues
+    if (dividend > 0) dividend = -dividend;
+    if (divisor > 0) divisor = -divisor;
+
+    unsigned int quotient = 0;
+
+    // Cast to unsigned int to perform comparisons and bitwise shifts safely
+    unsigned int u_dividend = (unsigned int)dividend;
+    unsigned int u_divisor = (unsigned int)divisor;
+
+    // Since numbers are negative representation under unsigned types:
+    // u_dividend >= u_divisor means |dividend| >= |divisor|
+    while (u_dividend <= u_divisor) {
+        unsigned int current_divisor = u_divisor;
+        unsigned int num_shifts = 0;
+
+        // Double the divisor until doubling it would exceed the dividend.
+        // 0xC0000000 corresponds to -1073741824 in two's complement.
+        // This ensures shifting doesn't exceed the 32-bit signed storage range.
+        while (current_divisor >= 0xC0000000 && (current_divisor << 1) >= u_dividend) {
+            current_divisor <<= 1;
+            num_shifts += 1;
+        }
+
+        // Subtract the largest shifted divisor found from the dividend
+        u_dividend -= current_divisor;
+        
+        // Add the corresponding power of 2 to the quotient
+        quotient += (1U << num_shifts);
+    }
+
+    // Return the signed quotient cast back to a signed 32-bit integer
+    return is_negative ? -(int)quotient : (int)quotient;
+}
