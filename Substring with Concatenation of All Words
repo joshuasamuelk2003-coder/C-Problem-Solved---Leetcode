@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for our Hash Map entries
+typedef struct {
+    char *word;
+    int count;
+} WordFreq;
+
+// Helper function to find a word in our frequency array
+int find_word(WordFreq *map, int size, const char *word, int len) {
+    for (int i = 0; i < size; i++) {
+        if (strncmp(map[i].word, word, len) == 0 && map[i].word[len] == '\0') {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int* findSubstring(char* s, char** words, int wordsSize, int* returnSize) {
+    *returnSize = 0;
+    if (!s || wordsSize == 0) return NULL;
+
+    int s_len = strlen(s);
+    int word_len = strlen(words[0]); // Fixed: Accessing the first word's length correctly
+    int total_len = word_len * wordsSize;
+
+    if (s_len < total_len) return NULL;
+
+    // 1. Build the master frequency map of input words
+    WordFreq *master_map = malloc(wordsSize * sizeof(WordFreq));
+    int map_size = 0;
+
+    for (int i = 0; i < wordsSize; i++) {
+        int idx = find_word(master_map, map_size, words[i], word_len);
+        if (idx != -1) {
+            master_map[idx].count++;
+        } else {
+            master_map[map_size].word = words[i];
+            master_map[map_size].count = 1;
+            map_size++;
+        }
+    }
+
+    // Allocate memory for result indices (at most s_len)
+    int *result = malloc(s_len * sizeof(int));
+    // Allocate space to track word frequencies in the current sliding window
+    int *curr_counts = calloc(map_size, sizeof(int));
+
+    // 2. Run sliding windows for every possible remainder offset
+    for (int i = 0; i < word_len; i++) {
+        int left = i;
+        int right = i;
+        int words_matched = 0;
+        
+        // Reset current window frequencies
+        memset(curr_counts, 0, map_size * sizeof(int));
+
+        // Slide the right pointer across the string by word_len intervals
+        while (right + word_len <= s_len) {
+            char *w_start = s + right;
+            right += word_len;
+
+            int idx = find_word(master_map, map_size, w_start, word_len);
+
+            if (idx != -1) {
+                curr_counts[idx]++;
+                words_matched++;
+
+                // FIXED: Changed master_map[idx] to master_map[idx].count
+                while (curr_counts[idx] > master_map[idx].count) {
+                    char *left_word = s + left;
+                    int left_idx = find_word(master_map, map_size, left_word, word_len);
+                    curr_counts[left_idx]--;
+                    words_matched--;
+                    left += word_len;
+                }
+
+                // If all words are perfectly matched, record the left index
+                if (words_matched == wordsSize) {
+                    result[(*returnSize)++] = left;
+                }
+            } else {
+                // Not a valid word: clear window and reset
+                memset(curr_counts, 0, map_size * sizeof(int));
+                words_matched = 0;
+                left = right;
+            }
+        }
+    }
+
+    // Clean up allocated helper buffers
+    free(master_map);
+    free(curr_counts);
+
+    return result;
+}
