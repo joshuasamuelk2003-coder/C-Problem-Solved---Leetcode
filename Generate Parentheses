@@ -1,0 +1,52 @@
+#include <stdlib.h>
+#include <string.h>
+
+void backtrack(
+    int n,
+    int open,
+    int close,
+    int pos,
+    char* current,
+    char*** result,
+    int* returnSize,
+    int* capacity
+) {
+    if (pos == 2 * n) {
+        current[pos] = '\0';
+
+        if (*returnSize >= *capacity) {
+            *capacity *= 2;
+            *result = realloc(*result, (*capacity) * sizeof(char*));
+        }
+
+        (*result)[*returnSize] = malloc((2 * n + 1) * sizeof(char));
+        strcpy((*result)[*returnSize], current);
+        (*returnSize)++;
+
+        return;
+    }
+
+    if (open < n) {
+        current[pos] = '(';
+        backtrack(n, open + 1, close, pos + 1, current, result, returnSize, capacity);
+    }
+
+    if (close < open) {
+        current[pos] = ')';
+        backtrack(n, open, close + 1, pos + 1, current, result, returnSize, capacity);
+    }
+}
+
+char** generateParenthesis(int n, int* returnSize) {
+    int capacity = 16;
+    char** result = malloc(capacity * sizeof(char*));
+    char* current = malloc((2 * n + 1) * sizeof(char));
+
+    *returnSize = 0;
+
+    backtrack(n, 0, 0, 0, current, &result, returnSize, &capacity);
+
+    free(current);
+
+    return result;
+}
