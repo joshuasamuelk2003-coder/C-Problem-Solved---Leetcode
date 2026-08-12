@@ -1,0 +1,21 @@
+int removeDuplicates(int* nums, int numsSize) {
+    // Handle the edge case of an empty array
+    if (numsSize == 0) {
+        return 0;
+    }
+
+    // Pointer to place the next unique element
+    int k = 1; 
+
+    // Iterate through the array starting from the second element
+    for (int i = 1; i < numsSize; i++) {
+        // If the current element is different from the last unique element found
+        if (nums[i] != nums[k - 1]) {
+            nums[k] = nums[i]; // Move it to the unique position
+            k++;              // Advance the unique pointer
+        }
+    }
+
+    // k represents the total count of unique elements
+    return k;
+}
