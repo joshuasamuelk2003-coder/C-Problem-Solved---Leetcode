@@ -1,0 +1,27 @@
+int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
+    int *pointer=(int*)malloc(2*sizeof(int));
+    *returnSize=2;
+    pointer[0]=-1,pointer[1]=-1;
+    if(numsSize == 0) return pointer;
+    int low=0,high=numsSize-1;
+    while(low <= high){
+        int mid=low+(high-low)/2;
+        if(nums[mid] > target) high=mid-1;
+        if(nums[mid] < target) low=mid+1;
+        if(nums[mid] == target) {
+            pointer[0]=mid;
+            high=mid-1;
+        }
+    }
+    low=0,high=numsSize-1;
+    while(low <= high){
+        int mid=low+(high-low)/2;
+        if(nums[mid] > target) high=mid-1;
+        if(nums[mid] < target) low=mid+1;
+        if(nums[mid] == target) {
+            pointer[1]=mid;
+            low=mid+1;
+        }
+    }
+    return pointer;
+}
