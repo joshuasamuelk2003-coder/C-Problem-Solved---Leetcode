@@ -1,0 +1,50 @@
+#include <stdlib.h>
+
+void backtrack(int* nums, int numsSize, int** result, int* returnSize,
+               int* returnColumnSizes, int* current, int depth, int used[]) {
+    if (depth == numsSize) {
+        result[*returnSize] = malloc(numsSize * sizeof(int));
+
+        for (int i = 0; i < numsSize; i++)
+            result[*returnSize][i] = current[i];
+
+        returnColumnSizes[*returnSize] = numsSize;
+        (*returnSize)++;
+        return;
+    }
+
+    for (int i = 0; i < numsSize; i++) {
+        if (!used[i]) {
+            used[i] = 1;
+            current[depth] = nums[i];
+
+            backtrack(nums, numsSize, result, returnSize,
+                      returnColumnSizes, current, depth + 1, used);
+
+            used[i] = 0;
+        }
+    }
+}
+
+int** permute(int* nums, int numsSize, int* returnSize,
+              int** returnColumnSizes) {
+    int total = 1;
+
+    for (int i = 2; i <= numsSize; i++)
+        total *= i;
+
+    int** result = malloc(total * sizeof(int*));
+    *returnColumnSizes = malloc(total * sizeof(int));
+    *returnSize = 0;
+
+    int* current = malloc(numsSize * sizeof(int));
+    int* used = calloc(numsSize, sizeof(int));
+
+    backtrack(nums, numsSize, result, returnSize,
+              *returnColumnSizes, current, 0, used);
+
+    free(current);
+    free(used);
+
+    return result;
+}
