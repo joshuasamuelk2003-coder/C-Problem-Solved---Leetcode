@@ -1,0 +1,45 @@
+#include <stdbool.h>
+
+bool isNumber(char* s) {
+    int i = 0;
+    bool digit = false;
+    bool dot = false;
+    bool exponent = false;
+    bool exponentDigit = true;
+
+    while (s[i] != '\0') {
+        if (s[i] >= '0' && s[i] <= '9') {
+            digit = true;
+
+            if (exponent)
+                exponentDigit = true;
+        }
+        else if (s[i] == '+' || s[i] == '-') {
+            if (i > 0 && s[i - 1] != 'e' && s[i - 1] != 'E')
+                return false;
+
+            if (s[i + 1] == '\0')
+                return false;
+        }
+        else if (s[i] == '.') {
+            if (dot || exponent)
+                return false;
+
+            dot = true;
+        }
+        else if (s[i] == 'e' || s[i] == 'E') {
+            if (exponent || !digit)
+                return false;
+
+            exponent = true;
+            exponentDigit = false;
+        }
+        else {
+            return false;
+        }
+
+        i++;
+    }
+
+    return digit && exponentDigit;
+}
