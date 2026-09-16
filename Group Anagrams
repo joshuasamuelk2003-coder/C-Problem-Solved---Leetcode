@@ -1,0 +1,56 @@
+#include <stdlib.h>
+#include <string.h>
+
+int compare(const void* a, const void* b) {
+    return *(char*)a - *(char*)b;
+}
+
+int findGroup(char** keys, int count, char* key) {
+    for (int i = 0; i < count; i++) {
+        if (strcmp(keys[i], key) == 0)
+            return i;
+    }
+    return -1;
+}
+
+char*** groupAnagrams(char** strs, int strsSize, int* returnSize,
+                      int** returnColumnSizes) {
+    char*** result = malloc(strsSize * sizeof(char**));
+    int* columnSizes = malloc(strsSize * sizeof(int));
+    char** keys = malloc(strsSize * sizeof(char*));
+    int* groupCount = calloc(strsSize, sizeof(int));
+
+    *returnSize = 0;
+
+    for (int i = 0; i < strsSize; i++) {
+        char key[101];
+        strcpy(key, strs[i]);
+
+        qsort(key, strlen(key), sizeof(char), compare);
+
+        int group = findGroup(keys, *returnSize, key);
+
+        if (group == -1) {
+            group = *returnSize;
+            keys[group] = malloc((strlen(key) + 1) * sizeof(char));
+            strcpy(keys[group], key);
+
+            result[group] = malloc(strsSize * sizeof(char*));
+            columnSizes[group] = 0;
+            (*returnSize)++;
+        }
+
+        result[group][groupCount[group]] = strs[i];
+        groupCount[group]++;
+        columnSizes[group] = groupCount[group];
+    }
+
+    for (int i = 0; i < *returnSize; i++)
+        free(keys[i]);
+
+    free(keys);
+    free(groupCount);
+
+    *returnColumnSizes = columnSizes;
+    return result;
+}
