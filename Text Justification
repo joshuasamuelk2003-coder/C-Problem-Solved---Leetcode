@@ -1,0 +1,60 @@
+#include <stdlib.h>
+#include <string.h>
+
+char** fullJustify(char** words, int wordsSize, int maxWidth, int* returnSize) {
+    char** result = malloc(wordsSize * sizeof(char*));
+    int count = 0;
+    int i = 0;
+
+    while (i < wordsSize) {
+        int j = i;
+        int totalLen = 0;
+
+        while (j < wordsSize &&
+               totalLen + strlen(words[j]) + (j - i) <= maxWidth) {
+            totalLen += strlen(words[j]);
+            j++;
+        }
+
+        int numWords = j - i;
+        int spaces = maxWidth - totalLen;
+
+        char* line = malloc((maxWidth + 1) * sizeof(char));
+        int pos = 0;
+
+        for (int k = i; k < j; k++) {
+            int len = strlen(words[k]);
+            memcpy(line + pos, words[k], len);
+            pos += len;
+
+            if (k < j - 1) {
+                int gap = 0;
+
+                if (j == wordsSize) {
+                    gap = 1;
+                } else {
+                    int slots = numWords - 1;
+                    gap = spaces / slots;
+                    if ((k - i) < spaces % slots) {
+                        gap++;
+                    }
+                }
+
+                for (int s = 0; s < gap; s++) {
+                    line[pos++] = ' ';
+                }
+            }
+        }
+
+        while (pos < maxWidth) {
+            line[pos++] = ' ';
+        }
+
+        line[maxWidth] = '\0';
+        result[count++] = line;
+        i = j;
+    }
+
+    *returnSize = count;
+    return result;
+}
