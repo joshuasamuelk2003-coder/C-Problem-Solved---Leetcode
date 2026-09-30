@@ -1,0 +1,44 @@
+#include <stdlib.h>
+
+void backtrack(int n, int k, int start, int depth,
+               int* path, int** result, int* count) {
+    if (depth == k) {
+        result[*count] = malloc(k * sizeof(int));
+
+        for (int i = 0; i < k; i++) {
+            result[*count][i] = path[i];
+        }
+
+        (*count)++;
+        return;
+    }
+
+    for (int i = start; i <= n - (k - depth) + 1; i++) {
+        path[depth] = i;
+        backtrack(n, k, i + 1, depth + 1, path, result, count);
+    }
+}
+
+int** combine(int n, int k, int* returnSize, int** returnColumnSizes) {
+    int total = 1;
+
+    for (int i = 1; i <= k; i++) {
+        total = total * (n - i + 1) / i;
+    }
+
+    int** result = malloc(total * sizeof(int*));
+    int* path = malloc(k * sizeof(int));
+    int count = 0;
+
+    backtrack(n, k, 1, 0, path, result, &count);
+
+    *returnSize = count;
+    *returnColumnSizes = malloc(count * sizeof(int));
+
+    for (int i = 0; i < count; i++) {
+        (*returnColumnSizes)[i] = k;
+    }
+
+    free(path);
+    return result;
+}
