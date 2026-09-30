@@ -1,0 +1,54 @@
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+
+int memo[31][31][31];
+
+bool solve(char* s1, char* s2, int i, int j, int len) {
+    if (memcmp(s1 + i, s2 + j, len) == 0) {
+        return true;
+    }
+
+    if (memo[i][j][len] != -1) {
+        return memo[i][j][len];
+    }
+
+    int freq[26] = {0};
+
+    for (int k = 0; k < len; k++) {
+        freq[s1[i + k] - 'a']++;
+        freq[s2[j + k] - 'a']--;
+    }
+
+    for (int k = 0; k < 26; k++) {
+        if (freq[k] != 0) {
+            return memo[i][j][len] = 0;
+        }
+    }
+
+    for (int k = 1; k < len; k++) {
+        if (solve(s1, s2, i, j, k) &&
+            solve(s1, s2, i + k, j + k, len - k)) {
+            return memo[i][j][len] = 1;
+        }
+
+        if (solve(s1, s2, i, j + len - k, k) &&
+            solve(s1, s2, i + k, j, len - k)) {
+            return memo[i][j][len] = 1;
+        }
+    }
+
+    return memo[i][j][len] = 0;
+}
+
+bool isScramble(char* s1, char* s2) {
+    int n = strlen(s1);
+
+    if (n != strlen(s2)) {
+        return false;
+    }
+
+    memset(memo, -1, sizeof(memo));
+
+    return solve(s1, s2, 0, 0, n);
+}
