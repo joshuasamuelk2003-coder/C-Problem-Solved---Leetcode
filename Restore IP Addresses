@@ -1,0 +1,58 @@
+#include <stdlib.h>
+#include <string.h>
+
+void backtrack(char* s, int start, int part, char* path,
+               char** result, int* count) {
+    int len = strlen(s);
+
+    if (part == 4) {
+        if (start == len) {
+            path[strlen(path) - 1] = '\0';
+
+            result[*count] = malloc(16);
+            strcpy(result[*count], path);
+            (*count)++;
+        }
+        return;
+    }
+
+    for (int l = 1; l <= 3 && start + l <= len; l++) {
+        if (l > 1 && s[start] == '0') {
+            break;
+        }
+
+        int num = 0;
+
+        for (int i = 0; i < l; i++) {
+            num = num * 10 + (s[start + i] - '0');
+        }
+
+        if (num > 255) {
+            break;
+        }
+
+        int oldLen = strlen(path);
+
+        for (int i = 0; i < l; i++) {
+            path[oldLen + i] = s[start + i];
+        }
+
+        path[oldLen + l] = '.';
+        path[oldLen + l + 1] = '\0';
+
+        backtrack(s, start + l, part + 1, path, result, count);
+
+        path[oldLen] = '\0';
+    }
+}
+
+char** restoreIpAddresses(char* s, int* returnSize) {
+    char** result = malloc(1000 * sizeof(char*));
+    char path[20] = "";
+    int count = 0;
+
+    backtrack(s, 0, 0, path, result, &count);
+
+    *returnSize = count;
+    return result;
+}
