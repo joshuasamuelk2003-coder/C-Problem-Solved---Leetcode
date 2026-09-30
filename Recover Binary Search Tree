@@ -1,0 +1,46 @@
+void recoverTree(struct TreeNode* root) {
+    struct TreeNode *first = NULL, *second = NULL, *prev = NULL;
+    struct TreeNode* current = root;
+
+    while (current != NULL) {
+        if (current->left == NULL) {
+            if (prev != NULL && prev->val > current->val) {
+                if (first == NULL)
+                    first = prev;
+                second = current;
+            }
+
+            prev = current;
+            current = current->right;
+        } else {
+            struct TreeNode* predecessor = current->left;
+
+            while (predecessor->right != NULL &&
+                   predecessor->right != current) {
+                predecessor = predecessor->right;
+            }
+
+            if (predecessor->right == NULL) {
+                predecessor->right = current;
+                current = current->left;
+            } else {
+                predecessor->right = NULL;
+
+                if (prev != NULL && prev->val > current->val) {
+                    if (first == NULL)
+                        first = prev;
+                    second = current;
+                }
+
+                prev = current;
+                current = current->right;
+            }
+        }
+    }
+
+    if (first != NULL && second != NULL) {
+        int temp = first->val;
+        first->val = second->val;
+        second->val = temp;
+    }
+}
