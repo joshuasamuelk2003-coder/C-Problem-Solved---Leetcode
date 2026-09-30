@@ -1,0 +1,50 @@
+#include <stdlib.h>
+
+struct TreeNode* createNode(int val) {
+    struct TreeNode* node = malloc(sizeof(struct TreeNode));
+    node->val = val;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+struct TreeNode** generate(int start, int end, int* count) {
+    if (start > end) {
+        struct TreeNode** result = malloc(sizeof(struct TreeNode*));
+        result[0] = NULL;
+        *count = 1;
+        return result;
+    }
+
+    struct TreeNode** result = NULL;
+    *count = 0;
+
+    for (int i = start; i <= end; i++) {
+        int leftCount, rightCount;
+
+        struct TreeNode** leftTrees = generate(start, i - 1, &leftCount);
+        struct TreeNode** rightTrees = generate(i + 1, end, &rightCount);
+
+        for (int l = 0; l < leftCount; l++) {
+            for (int r = 0; r < rightCount; r++) {
+                result = realloc(result, (*count + 1) * sizeof(struct TreeNode*));
+
+                struct TreeNode* root = createNode(i);
+                root->left = leftTrees[l];
+                root->right = rightTrees[r];
+
+                result[*count] = root;
+                (*count)++;
+            }
+        }
+
+        free(leftTrees);
+        free(rightTrees);
+    }
+
+    return result;
+}
+
+struct TreeNode** generateTrees(int n, int* returnSize) {
+    return generate(1, n, returnSize);
+}
